@@ -1,4 +1,4 @@
-Hi Data Carpentry workshop participant! We're looking forward to the workshop at HASTAC on May 30-31, and have some information below on logistics and what to do before the workshop.
+Hello Data Carpentry workshop participant! We're looking forward to the workshop at HASTAC on May 30-31, and have some information below on logistics and what to do before the workshop.
 
 Cam Macdonell <macdonellc4@macewan.ca>, Sean Pue <pue@msu.edu> and Tracy Teal <tkteal@datacarpentry.org>
 will be the instructors for the workshop, and please don't hesitate to contact 
