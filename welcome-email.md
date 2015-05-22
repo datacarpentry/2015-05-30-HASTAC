@@ -13,9 +13,8 @@ https://github.com/datacarpentry/2015-05-30-HASTAC/wiki
 ** Before the Workshop **
 
 To get the workshop off to a good start and make the best use of the time (and network bandwidth), before the workshop please do two things:
-1. Install the relevant software: 
-http://datacarpentry.github.io/2015-05-30-HASTAC/install.html
 
+1. Install the relevant software: http://datacarpentry.github.io/2015-05-30-HASTAC/install.html
 2. Take the pre-workshop survey: 
 http://ucbpsych.qualtrics.com/jfe/form/SV_0TFu7FTlG0DoM7P
 The survey information helps us know who the participants will be and most effectively tailor the workshop for the group.
@@ -27,7 +26,6 @@ https://github.com/datacarpentry/2015-05-30-HASTAC/wiki#before
 ** Help Desk During HASTAC **
 
 During the Friday lunch break during the HASTAC conference, we will have a help desk by the exhibitor desk in the Big Ten Room of the Kellogg Center. If you need any help, stop by then.
-
 
 Thank you for doing this work to get setup before the workshop, and we look forward to meeting you next week!
 
