@@ -10,7 +10,7 @@ Contributors: **Jennifer Bryan**, **Alexander Duryee**, **Jeffrey Hollister**, *
 
 ###Spreadsheet data formats
 
-Storing data in Excel default file format (`*.xls` or `*.xlsx` - depending on the Excel version) is a bad idea. Why? Because it is a proprietary format, and it is possible that in the future, technology won’t exist (or will become sufficiently rare)  to make it inconvenient, if not impossible, to open the file. 
+Storing data in Excel default file format (`*.xls` or `*.xlsx` - depending on the Excel version) is a bad idea. Why? Because it is a proprietary format, and it is possible that in the future, technology won’t exist (or will become sufficiently rare)  to make it inconvenient, if not impossible, to open the file.
 
 Think about zipdisks. How many old theses in your lab are “backed up” and stored on zipdisks? Ever wanted to pull out the raw data from one of those?
 *Exactly.*
@@ -29,11 +29,12 @@ To save a file you have opened in Excel into the `*.csv` format:
 2. In the 'Format' field, from the list, select 'Comma Separated Values' (`*.csv`).
 3. Double check the file name and the location where you want to save it and hit 'Save'.
 
-![Saving an Excel file to CSV](../../../img/excel-to-csv.png)
+![Saving an Excel file to CSV](fig/excel-to-csv.png)
+
 
 An important note for backwards compatibility: you can open CSVs in Excel!
 
-## A Note on Cross-platform Operability## 
+## A Note on Cross-platform Operability##
 (or, how typewriters are ruining your work)
 
 By default, most coding and statistical environments expect UNIX-style line endings (`\n`) as representing line breaks.  However, Windows uses an alternate line ending signifier (`\r\n`) by default for legacy compatibility with Teletype-based systems.  As such, when exporting to CSV using Excel, your data will look like this:
@@ -58,13 +59,13 @@ Add the follwing to the file ([see the detailed tutorial](http://nicercode.githu
 
 		[filter "cr"]
     		clean = LC_CTYPE=C awk '{printf(\"%s\\n\", $0)}' | LC_CTYPE=C tr '\\r' '\\n'
-    		smudge = tr '\\n' '\\r'` 
-    
+    		smudge = tr '\\n' '\\r'`
+
  	and then create a file `.gitattributes` that contains the line:
- 
+
  		*.csv filter=cr
- 
-	
+
+
 3. Use [dos2unix](http://dos2unix.sourceforge.net/) (available on OSX, *nix, and Cygwin) on local files to standardize line endings.
 
 
