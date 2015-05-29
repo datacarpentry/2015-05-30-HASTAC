@@ -117,10 +117,7 @@ preliminary summary statistics.
 
 In this lesson, we will assume that you are most likely using Excel as your 
 primary spreadsheet program- there are others (gnumeric, Calc from OpenOffice),
- and their functionality is similar, but Excel seems to be the program most 
-used by biologists and ecologists.
-
-![Helpful clippy - img by @tim_yates](fig/1_helpful_clippy.jpg)
+ and their functionality is similar, but Excel seems to be the program most used.
 
 In this lesson, we’re going to talk about:
 
