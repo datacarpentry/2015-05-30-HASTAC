@@ -25,12 +25,12 @@ Contributors: **Jennifer Bryan**, **Alexander Duryee**, **Jeffrey Hollister**, *
 ## Lessons:
 
 1. [Introduction](00-intro.html)			
-2. [Formatting data exercise](01-format-data.md)		
-3. [Formatting problems](02-common-mistakes.md)		
-4. [Dates as data](03-dates-as-data.md)		
-5. [Quality control](04-quality-control.md)		
-6. [Exporting data](05-exporting-data.md)		
-7. [Data format caveats](06-data-formats-caveats.md)
+2. [Formatting data exercise](01-format-data.html)		
+3. [Formatting problems](02-common-mistakes.html)		
+4. [Dates as data](03-dates-as-data.html)		
+5. [Quality control](04-quality-control.html)		
+6. [Exporting data](05-exporting-data.html)		
+7. [Data format caveats](06-data-formats-caveats.html)
 
 
 
