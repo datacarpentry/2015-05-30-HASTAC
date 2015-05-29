@@ -11,7 +11,7 @@ time, and with less pain. The lessons below were designed for those interested
 in working with {{info.domain %}} data in {{info.topic %}}. 
 
 
-Authors:**Christie Bahlai**, **Aleksandra Pawlik**<br>
+Authors:**Christie Bahlai**, **Aleksandra Pawlik**, **Tracy Teal**<br>
 Contributors: **Jennifer Bryan**, **Alexander Duryee**, **Jeffrey Hollister**, **Daisie Huang**, **Owen Jones**, **Clare Sloggett**, **Harriet Dashnow** and
 **Ben Marwick**
 
@@ -25,13 +25,12 @@ Contributors: **Jennifer Bryan**, **Alexander Duryee**, **Jeffrey Hollister**, *
 ## Lessons:
 
 1. [Introduction](00-intro.html)			
-
-2. 01-format-data.md		
-3. 02-common-mistakes.md		
-4. 03-dates-as-data.md		
-5. 04-quality-control.md		
-6. 05-exporting-data.md		
-7. 06-data-formats-caveats.md
+2. [Formatting data exercise](01-format-data.md)		
+3. [Formatting problems](02-common-mistakes.md)		
+4. [Dates as data](03-dates-as-data.md)		
+5. [Quality control](04-quality-control.md)		
+6. [Exporting data](05-exporting-data.md)		
+7. [Data format caveats](06-data-formats-caveats.md)
 
 
 
