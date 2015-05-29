@@ -8,7 +8,7 @@ title: Intro to the Shell
 
 Author: Tracy Teal
 Original contributors:
-Paul Wilson, Milad Fatenejad, Sasha Wood and Radhika Khetani for Software Carpentry (http://http://software-carpentry.org/)
+Paul Wilson, Milad Fatenejad, Sasha Wood and Radhika Khetani for Software Carpentry (http://software-carpentry.org/)
 
 ## Objectives
 - What is the shell?

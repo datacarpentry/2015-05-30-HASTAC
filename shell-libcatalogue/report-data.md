@@ -254,6 +254,8 @@ by passing the parameter **-c**.
 
     tail -n +3 simple.csv | cut -d , -f 2 | sort | uniq -c
 
+and the counts are now at the front of each line
+
     1 ALLOSAURUS A WALKING WITH
     1 AMAZING MAGIC TRICKS BEGINNER LEVEL
     1 BLUESAMERICANA
