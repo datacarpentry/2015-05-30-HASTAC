@@ -1,6 +1,6 @@
 ---
 layout: lesson
-root: ../..
+root: .
 title: Working with Report Data (Excel or Director's Station)
 ---
 
@@ -33,12 +33,12 @@ tools, but we have designed this lessons to be as general as possible.
 Consider a the following data as an example of a spreadsheet that a librarian
 may find themself working with.
 
-![]({{page.root}}/lessons/swc-librarians/images/excel.png)
+![]({{page.root}}/images/excel.png)
 
 Eventually, we will get to the point where can know how many holds 
 there are on Ender's Game.
 
-Here is the data of the above spreadsheet exported as [CSV file](../../data/librarians/simple.csv).
+Here is the data of the above spreadsheet exported as [CSV file](data/simple.csv).
 
     List Titles with Holds,,,,,,,,
     Holds,Title,Author,Hold Created Date,Hold Placed Lib,Item Library,Pickup Library,Item Type,Availability
