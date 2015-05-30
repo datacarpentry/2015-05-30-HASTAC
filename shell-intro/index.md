@@ -214,7 +214,8 @@ Type
 Now do `ls` and `pwd`. See now that we went back up in to the 'edamame'
 directory. `..` just means go back up a level.
 
-** Exercise
+*****
+**Exercise**
 
 Now we're going to try a hunt.
 Move around in the 'hidden' directory and try to find the file youfoundit.txt
