@@ -1,0 +1,717 @@
+---
+layout: lesson
+title: Introducing text analysis of survey data
+---
+
+> ### Objectives
+>
+> *   Explain when a quantitative approach is useful when analysing text
+> *   Explain how text can be used as quantitative data
+
+This lesson introduces text analysis using R. The lesson uses the `tm` package, which is currently the most versatile and widely used package for analysing text in R. The lesson focuses on survey responses in a CSV file, but it could easily be adapted to work with text in PDF files, MS Word documents, plain text files, web pages, twitter streams, and so on. 
+
+A convenient way to collect information from people is to ask them to type responses to a set of questions. This is especially useful when it's tricky to anticipate the range of responses that is to be collected and when it's not practical or desirable to offer checkboxes or dropdown menus. Collection of free text allows respondents to be unconstrained by the data collection instrument (although the size limit of the text field is a practical constraint). 
+
+Let's say we want to do a survey to understand people's needs about training in data and programming skills. We don't have much prior knowledge about the people taking the survey, so we might use a combination of likert scales ('how often do you program?' with six buttons ranging between 'never' and 'daily' ) and free text responses for questions like 'Briefly list 1-2 specific skills relating to data and software you'd like to acquire'. If 10-20 people take the survey we can easily scan the free text responses and get a sense of what skills people are interested in. But if 100 or more people take the survey, we can't count on a casual glance of the text to get a reliable summary of the responses. 
+
+The challenge that we'll tackle here is how to programmatically quantify the free text responses so we can quickly see what the range of responses are, and rank their frequencies to see what the most popular skills are. 
+
+The next lessons will show:
+- how to get survey data like this into R
+- how to use the tm package in R to convert the text into numbers, which is what R is especially well suited to working with
+- how to manipulate and analyse the data in R to summarise the free text data
+- how to visualize the results of the analysis with the ggplot2 package
+
+### What and Why
+
+At the simplest level, the main task in using a programming language to analyse free text data is to convert the words to numbers, upon which we can then perform simple transformations and arithmetic. This would be an extremely tedious task to perform manually, and fortunately there are some quite mature free and open source software packages for R that do it very efficiently. Advantages of using this software include the ability to automate and reproduce the analysis and the transparency of the method that allows others to easily see the choices you've made during the analysis. 
+
+The most important data structure that results from this conversion is the document-term matrix. This is a table of numbers where each column represents a word and each row represents a document. In the case of a survey, we might have one document-term matrix per question, and each row would represent one respondent. Using this data structure, one person's response to a question can be represented as a vector of numbers that express the frequency of various words in their response. Obviously this vector makes little sense if we try to read it as a normal sentence, but it's very useful for working at a large scale and identifying high-frequency words and word associations. One of the key advantages of this structure is storage efficiency. By storing a count of a word in a document we don't need to store all its individual occurrences. And thanks to a format called 'simple triplet matrix' we don't need to store zeros at all. This means that a document-term matrix takes much less memory that the original text it represents, so it's faster to operate on and easier to store and transmit. 
+
+These lessons are designed to be worked through interactively at the R console. At several points we'll be iterating over functions, experimenting with different parameter values. This is a typical process for exploratory data analysis, working interactively and trying several different methods before we get something meaningful.  
+
+### Key Points
+
+*   Free text responses is a valuable survey method, but can be challenging to analyse
+*   A quantitative approach to analysing free text is advantageous because it can be automated, reproduced and audited. 
+*   The document-term matrix is an important data structure for quantitative analysis of free text
+*   An exploratory, iterative approach is valuable when encountering new data for the first time
+
+
+---
+layout: topic
+title: Introducing RStudio
+minutes: 15
+---
+
+```{r, echo=FALSE, purl=FALSE}
+knitr::opts_chunk$set(results='hide', fig.path='img/r-lesson-')
+```
+
+> ## Learning Objectives
+>
+> * Introduce participants to the RStudio interface
+> * Set up participants to work with files, scripts and output figures 
+> * Introduce R syntax
+> * Introduce good R style
+> * Point to relevant information on how to get help, and understand how to ask well formulated questions
+
+# Working with RStudio
+
+For this workshop you installed R and RStudio. RStudio is an interface that makes it nicer 
+to work with the R programming language. 
+
+# Introducing RStudio and setting up the environment
+
+* Start RStudio (presentation of RStudio -below- should happen here)
+* Under the `File` menu, click on `New project`, choose `New directory`, then
+  `Empty project`
+* Enter a name for this new folder, and choose a convenient location for
+  it. This will be your **working directory** for the rest of the day
+  (e.g., `~/data-carpentry`)  
+  The `~` sign is a shortcut for your 'home' directory - the place where you start. 
+
+* Click on "Create project"
+* Under the `Files` tab on the right of the screen, click on `New Folder` and
+  create a folder named `data` within your newly created working directory.
+  (e.g., `~/data-carpentry/data`)
+* Create a new R script (File > New File > R script) and save it in your working
+  directory (e.g. `data-carpentry-script.R`)
+
+Your working directory should now look like this:
+
+![How it should look like at the beginning of this lesson](img/r_starting_how_it_should_like.png)
+
+## Organizing your working directory
+
+You should separate the original data (raw data) from intermediate datasets that
+you may create for the need of a particular analysis. For instance, you may want
+to create a `data/` directory within your working directory that stores the raw
+data, and have a `data_output/` directory for intermediate datasets and a
+`figure_output/` directory for the plots you will generate.
+
+# Presentation of RStudio
+
+Let's start by learning about our tool.
+
+* Console, Scripts, Environments, Plots
+* Code and workflow are more reproducible if we can document everything that we
+  do.
+* Our end goal is not just to "do stuff" but to do it in a way that anyone, and in 
+  particular, ourselves of 6 months from now, can
+  easily and exactly replicate our workflow and results.
+
+# Interacting with R
+
+There are two main ways of interacting with R: using the console or by using
+script files (plain text files that contain your code).
+
+The console window (in RStudio, the bottom left panel) is the place where R is
+waiting for you to tell it what to do, and where it will show the results of a
+command.  You can type commands directly into the console, but they will be
+forgotten when you close the session. It is better to enter the commands in the
+script editor, and save the script. This way, you have a complete record of what
+you did, you can easily show others how you did it and you can do it again later
+on if needed. You can copy-paste into the R console, but the Rstudio script
+editor allows you to 'send' the current line or the currently selected text to
+the R console. You can go to Code -> Run line(s) or use the `Ctrl-Enter` shortcut.
+
+Let's give it a try and use R as a fancy caculator. In the console (the bottom left panel) type 
+
+```
+2+2
+```
+
+We see that it gives us
+
+```
+[1] 4
+```
+
+Hooray, it worked like it should!
+
+Now, let's try using the script editor. In the top left, the editor, type 
+
+```
+3+3
+```
+
+Once you do that, nothing happens. That's because R doesn't actually know you typed that yet. 
+You have to tell it you want to run that command. With your cursor somewhere on that line, 
+type Control^Enter. Now you can see that in the bottom panel, the command was run and you get
+
+```
+[1] 6
+```
+
+If R is ready to accept commands, the R console shows a `>` prompt. If it
+receives a command (by typing, copy-pasting or sent from the script editor using
+`Ctrl-Enter`), R will try to execute it, and when ready, show the results and
+come back with a new `>`-prompt to wait for new commands.
+
+If R is still waiting for you to enter more data because it isn't complete yet,
+the console will show a `+` prompt. It means that you haven't finished entering
+a complete command. This is because you have not 'closed' a parenthesis or
+quotation. If you're in Rstudio and this happens, click inside the console
+window and press `Esc`; this should help you out of trouble.
+
+We'll be working in the scripting window, because in that section, you can save your work. If 
+you just do something in that bottom part, once you close RStudio, that work goes away. It's
+like your notebook versus a dry erase board. 
+
+## Commenting
+
+Something else that's nice that you can do in the scripting window, is that you can comment
+your work. So, you can say why you did something or what that section is supposed to do.
+
+Use `#` signs to comment. Comment liberally in your R scripts. Anything to the
+right of a `#` is ignored by R.
+
+
+```
+To comment something you use the sign  
+  #
+```
+
+Let's try that. 
+
+```
+# This is addition of 3 and 3
+3+3
+```
+
+If you highlight just the 3+3 and then type Ctrl+Enter, you get 6. If you highlight
+the whole thing and type Ctrl+Enter, you still get 6. Anything in the line after 
+the # is being ignored.
+
+## Assignment operator
+
+`<-` is the assignment operator. It assigns values on the right to objects on
+the left. So, after executing `x <- 3`, the value of `x` is `3`. The arrow can
+be read as 3 **goes into** `x`.  You can also use `=` for assignments but not in
+all contexts so it is good practice to use `<-` for assignments. `=` should only
+be used to specify the values of arguments in functions, see below.
+
+In RStudio, typing `Alt + -` (push `Alt`, the key next to your space bar at the
+same time as the `-` key) will write ` <- ` in a single keystroke.
+
+So, let's try some algebra. Assign a <- 4 and b <- 2. Add a + b and what do you get?
+
+**Remember that you have to run each line if you're typing it in the scripting windows**
+
+
+***
+##EXERCISE
+
+- In the scripting window, add four numbers and comment them to say why you picked
+those four numbers, and run the command.
+- In the scripting window, assign c, d, e and f to those 4 numbers. Add c, d, e and f. Do you
+get the same number as in the exercise above?
+- What happens if you just type `a` in the console (bottom) window?
+- Change c to 100. Now add c, d, e and f again. What do you think will happen? Is this what happened?
+- In the console window, hit the up arrow key. Hit it again. What's happening?
+
+
+***
+
+At some point in your analysis you may want to check the content of variable or
+the structure of an object, without necessarily keep a record of it in your
+script. You can type these commands directly in the console. RStudio provides
+the `Ctrl-1` and `Ctrl-2` shortcuts allow you to jump between the script and the
+console windows.
+
+# Built in functions
+
+R also has handy built in functions for commonly done things. It also has packages you can
+load in for all types of things. The text mining package will be one we work with today.
+
+For instance, adding up a bunch of numbers, like we just did, is a common function. Instead
+of adding them all up, we can use the function `sum()`. Type
+
+```
+sum(1,2,3,4)
+```
+
+Do you get what you expected?
+
+***
+##EXERCISE
+
+- Use the sum() function on your numbers.
+- Does sum() work just for numbers or for the letters/variables you assigned to the numbers too?
+
+***
+
+
+
+
+
+# Basics of R (it's more than just a calculator)
+
+
+R is a versatile, open source programming/scripting language that's useful both
+for statistics but also data science. Inspired by the programming language S.
+
+* Open source software under GPL.
+* Superior (if not just comparable) to commercial alternatives. R has over 7,000
+  user contributed packages at this time. It's widely used both in academia and
+  industry.
+* Available on all platforms.
+* Not just for statistics, but also general purpose programming.
+* For people who have experience in programmming: R is both an object-oriented
+  and a so-called [functional language](http://adv-r.had.co.nz/Functional-programming.html)
+* Large and growing community of peers.
+
+
+
+## Seeking help
+
+### I know the name of the function I want to use, but I'm not sure how to use it
+
+If you need help with a specific function, let's say `sum()`, you can type:
+
+```{r, eval=FALSE}
+?sum
+```
+
+If you just need to remind yourself of the names of the arguments, you can use:
+
+```{r, eval=FALSE}
+args(sum)
+```
+
+If the function is part of a package that is installed on your computer but
+don't remember which one, you can type:
+
+```{r, eval=FALSE}
+??geom_point
+```
+
+### I want to use a function that does X, there must be a function or it but I don't know which one...
+
+If you are looking for a function to do a particular task, you can use
+`help.search()` (but only looks through the installed packages):
+
+```{r, eval=FALSE}
+help.search("kruskal")
+```
+
+If you can't find what you are looking for, you can use the
+[rdocumention.org](http://www.rdocumentation.org) website that search through
+the help files across all packages available.
+
+### Style
+
+[http://adv-r.had.co.nz/Style.html](R Style Guide)
+
+
+### I am stuck... I get an error message that I don't understand
+
+Start by googling the error message. However, this doesn't always work very well
+because often, package developers rely on the error catching provided by R. You
+end up with general error messages that might not be very helpful to diagnose a
+problem (e.g. "subscript out of bounds").
+
+However, you should check stackoverflow. Search using the `[r]` tag. Most
+questions have already been answered, but the challenge is to use the right
+words in the search to find the answers:
+[http://stackoverflow.com/questions/tagged/r](http://stackoverflow.com/questions/tagged/r)
+
+The [Introduction to R](http://cran.r-project.org/doc/manuals/R-intro.pdf) can
+also be dense for people with little programming experience but it is a good
+place to understand the underpinnings of the R language.
+
+The [R FAQ](http://cran.r-project.org/doc/FAQ/R-FAQ.html) is dense and technical
+but it is full of useful information.
+
+### Asking for help
+
+The key to get help from someone is for them to grasp your problem rapidly. You
+should make it as easy as possible to pinpoint where the issue might be.
+
+Try to use the correct words to describe your problem. For instance, a package
+is not the same thing as a library. Most people will understand what you meant,
+but others have really strong feelings about the difference in meaning. The key
+point is that it can make things confusing for people trying to help you. Be as
+precise as possible when describing your problem
+
+If possible, try to reduce what doesn't work to a simple reproducible
+example. If you can reproduce the problem using a very small `data.frame`
+instead of your 50,000 rows and 10,000 columns one, provide the small one with
+the description of your problem. When appropriate, try to generalize what you
+are doing so even people who are not in your field can understand the question.
+
+To share an object with someone else, if it's relatively small, you can use the
+function `dput()`. It will output R code that can be used to recreate the exact same
+object as the one in memory:
+
+```{r, results='show'}
+dput(head(iris)) # iris is an example data.frame that comes with R
+```
+
+If the object is larger, provide either the raw file (i.e., your CSV file) with
+your script up to the point of the error (and after removing everything that is
+not relevant to your issue). Alternatively, in particular if your questions is
+not related to a `data.frame`, you can save any R object to a file:
+
+```{r, eval=FALSE}
+saveRDS(iris, file="/tmp/iris.rds")
+```
+
+The content of this file is however not human readable and cannot be posted
+directly on stackoverflow. It can however be sent to someone by email who can read
+it with this command:
+
+```{r, eval=FALSE}
+some_data <- readRDS(file="~/Downloads/iris.rds")
+```
+
+Last, but certainly not least, **always include the output of `sessionInfo()`**
+as it provides critical information about your platform, the versions of R and
+the packages that you are using, and other information that can be very helpful
+to understand your problem.
+
+```{r, results='show'}
+sessionInfo()
+```
+
+### Where to ask for help?
+
+* Your friendly colleagues: if you know someone with more experience than you,
+  they might be able and willing to help you.
+* Stackoverlow: if your question hasn't been answered before and is well
+  crafted, chances are you will get an answer in less than 5 min.
+* The [R-help](https://stat.ethz.ch/mailman/listinfo/r-help): it is read by a
+  lot of people (including most of the R core team), a lot of people post to it,
+  but the tone can be pretty dry, and it is not always very welcoming to new
+  users. If your question is valid, you are likely to get an answer very fast
+  but don't expect that it will come with smiley faces. Also, here more than
+  everywhere else, be sure to use correct vocabulary (otherwise you might get an
+  answer pointing to the misuse of your words rather than answering your
+  question). You will also have more success if your question is about a base
+  function rather than a specific package.
+* If your question is about a specific package, see if there is a mailing list
+  for it. Usually it's included in the DESCRIPTION file of the package that can
+  be accessed using `packageDescription("name-of-package")`. You may also want
+  to try to email the author of the package directly.
+* There are also some topic-specific mailing lists (GIS, phylogenetics, etc...),
+  the complete list is [here](http://www.r-project.org/mail.html).
+
+### More resources
+
+* The [Posting Guide](http://www.r-project.org/posting-guide.html) for the R
+  mailing lists.
+* [How to ask for R help](http://blog.revolutionanalytics.com/2014/01/how-to-ask-for-r-help.html)
+  useful guidelines
+---
+layout: lesson
+title: Getting text data into R
+---
+
+> ### Objectives
+> *   Input the survey data into R
+> *   Inspect the data in R
+
+Surveys are mostly conducted online using a web form. Most online survey applications provide a simple way to get the data by exporting a CSV file. CSV files are plain text files where the columns are separated by commas, hence 'comma separated variables' or CSV. The advantage of a CSV over an Excel or SPSS file is that we can open and read a CSV file using just about any software, including a simple text editor. We're not tied to a certain version of a certain expensive program when we work with CSV, so it's a good format to work with for maximum portability and endurance. We could also import text files, PDF files or other file formats for this kind of text analysis. For simplicity here we have a CSV file with just one column. This is an excerpt from real survey data that have been anonymised and de-identified. 
+
+Built into R is a convenient function for importing CSV files into the R environment:
+
+
+```{r}
+survey_data <- read.csv("survey_data.csv", stringsAsFactors = FALSE)
+```
+
+You need to give R the full path to the CSV file on your computer, or you can use the function `setwd` to set a working directory for your R session before the `read.csv` line. Once you specify the appropriate working directory you can just refer to the CSV file by its name rather than the whole path. The argument `stringsAsFactors = FALSE` keeps the text as a character type, rather than converting it to a factor, which is the default setting. Factors are useful in many settings, but not this one. 
+
+Now that we have the CSV data in our R environment, we want to inspect it to see that the import process went as expected. There are two handy functions we can use for this `str` will report on the structure of our data, and `head` will show us the first five rows of the data. We're looking to see that the data in R resembles what we see in the CSV file (which we can inspect in a spreadsheet program).
+
+
+```{r}
+str(survey_data) 
+head(survey_data)
+```
+
+And we see that it looks pretty good. The output from `str` shows we have 72 observations (rows) and 1 variable (column), our data is formatted as 'character' (indicated by 'chr'). The output from `head` shows there are no weird characters, in the first five rows at least. One detail we can change to improve usability is the column name, it's rather long an unwieldy, so let's shorten it. First we'll see exactly what it is, then we'll replace it:
+
+
+```{r}
+names(survey_data) # inspect col names, wow so long and unreadable!
+names(survey_data) <- "skills_to_acquire" # replace
+names(survey_data) # check that the replacement worked as intended
+```
+
+Now we have the data in, and we're confident that the import process went well, we can carry on with quantification. 
+
+### Key Points
+
+*   Survey responses can be collected online and the data can be exported as a CSV file
+*   CSV files are advantageous because they're not bound to certain programs
+*   R easily imports CSV files
+*   R has convenient functions for inspecting and modifying data after import
+
+---
+layout: lesson
+title: Creating a document-term matrix
+---
+
+> ### Objectives
+> *   Install and use the tm package for R
+> *   Quantify the text by converting it to a document-term matrix
+ 
+
+With our data in R, we are now ready to begin manipulations and analyses. Note that we're not working directly on the CSV file, we're working on a copy of the data in R. This means that if we make a change to the data that we don't like, we can start over by importing the original CSV file again. Keeping the original data intact like this is good practice for ensuring a reproducible workflow.
+
+The basic install of R does not come with many useful functions for working with text. However, there is a very powerful contributed package called `tm` (for 'text mining') which is collection of functions for working with text that we will use. We'll need to download this package and then make these functions available to our R session. You only need to do this once per computer, so if you've already downloaded the `tm` package onto your computer in the recent past you can skip that line, but don't skip `library(tm)`, that's necessary each time you open R:
+
+
+```{r}
+install.packages("tm") # download the tm package from the web, only need to do this once per computer. If you're running `install.packages` for the first time, you will be asked to select a CRAN mirror, I usually choose 0 - rstudio
+library(tm) # make the functions available to our session
+```
+
+One of the strengths of working with R is that there is often a lot of documentation, and often this contains examples of how to use the functions. The `tm` package is a reasonably good example of this and we can see the documentation using:
+
+
+```{r}
+help(package = tm)
+```
+
+From here we can browse the functions and access the vignettes which give a detailed guide to using the most important functions. You'll also find a lot of information on the stackoverflow Q&A website under the `tm` tag (http://stackoverflow.com/questions/tagged/tm) that can be hard to find in the documentation (or is not there at all). We'll go directly on and continue working with the survey data by converting the free text into a document-term matrix. First we convert to a corpus, a file format in the tm package for a collection of documents containing text in the same format the we read it in the CSV file. Then we convert to a document-term matrix, and then have a look to see that the number of documents in the document-term matrix matches the number of rows in our CSV.  
+
+
+```{r}
+my_corpus <- Corpus(DataframeSource(survey_data))
+my_corpus # inspect
+my_dtm <- DocumentTermMatrix(my_corpus)
+my_dtm # inspect
+```
+
+We can also see the number of unique words in the data, referenced as `terms` in the document-term matrix. The value for `Maximal term length` tells us the number of characters in the longest word. Is this case it's very long, usually a result of punctuation joining words together like 'document-term'. We'll do something about this in a moment. 
+
+We want to see the actual rows and columns of the document-term matrix to verify that the conversion went as expected, so we use the function `inspect`, and we can subset the document-term matrix to inspect certain rows and columns (since it can be unwieldy to scroll through the whole document-term matrix). The `inspect` function can also be used on `my_corpus` if you want to see how that looks.
+
+
+```{r}
+inspect(my_dtm) # see rather too much to make sense of
+inspect(my_dtm[1:10, 1:10]) # see just the first 10 rows and columns
+```
+
+The most striking detail here is that the matrix is mostly zeros, this is quite normal, since not every word will be in every response. We can also see a lot of punctuation stuck on the words that we don't want. In the next lesson we'll tackle those. 
+
+### Key Points
+
+*   Key text analysis functions are in the contributed package tm
+*   The tm package can be downloaded and installed using R
+*   The documentation can be easily accessed using R
+*   The free text can be easily converted to a document-term matrix
+*   The document-term matrix needs some work before it's ready for analysis, for example removal of punctuation. 
+
+---
+layout: lesson
+title: Preparing the document-term matrix
+---
+
+> ### Objectives
+> *   Prepare the document-term matrix for analysis
+> *   Remove unwanted elements from the text  
+
+Now we've sailed through getting the data into R and getting it into the document-term matrix format we can see that there are few problems that we need to deal with before we can get on with the analysis. When we inspected the document-term matrix we saw that the text is polluted with punctuation, and probably other things like sneaky white spaces that are hard to spot, and numbers (meaning digits). We want to remove all of that before we move on. 
+
+But there are also some other things we should also remove. To get to the words that we're interested in, we can remove all the uninteresting words such as 'a', 'the', and so on. These uninteresting words are often called stopwords and we can delete them from our data to simplify and speed up our operations. We can also convert all the words to lower case, since upper and lower case have no semantic difference here (for the most part, an abbreviation is an obvious exception, if we were expecting those to be important we might skip the case conversion).  
+
+The `tm` package contains convenient functions for removed these things from text data. There are many other related functions of course, such as stemming (which will reduce 'learning' and 'learned' to 'learn'), part-of-speech tagging (for example, to select only the nouns), weighting, and so on, that similarly clean and transform the data, but we'll stick with the simple ones for now. We can easily do this cleaning during the process of converting the corpus to a document-term matrix:
+
+
+```{r}
+my_dtm <- DocumentTermMatrix(my_corpus, 
+                             control = list(removePunctuation = TRUE, 
+                                            stripWhitespace = TRUE,
+                                            removeNumbers = TRUE, 
+                                            stopwords =  TRUE, 
+                                            tolower = TRUE, 
+                                            wordLengths=c(1,Inf)))
+# This last line with 'wordLengths' overrides the default minimum
+# word length of 3 characters. We're expecting a few important single
+# character words, so we set the function to keep those. Normally words
+# with <3 characters are uninteresting in most text mining applications
+my_dtm # inspect
+inspect(my_dtm[1:10, 1:10]) # inspect again
+```
+
+And now we see that when we inspect the document-term matrix the punctuation has gone. We can also see that the number of terms has been reduced, and the `Maximal term length` value has also dropped. We can have a look through the words that are remaining after this data cleaning:
+
+
+```{r}
+Terms(my_dtm)
+```
+
+The majority of words look fine, there are a few odd ones in there that we're left with after removing punctuation. We can work on these removing sparse terms, since these long words probably only occur once in the corpus. We'll use the function `removeSparseTerms` which takes an argument between <1 (ie. 0.9999) and zero for how sparse the resulting document-term matrix should be. Typically we'll need to make several passes at this to find a suitable sparsity value. Too close to zero and we'll have hardly any words left, so it's useful to experiment with a bunch of different values here.  
+
+
+```{r}
+my_dtm_sparse <- removeSparseTerms(my_dtm, 0.98)
+my_dtm_sparse # inspect
+```
+
+Now we've got a dataset that has be cleaned of most of the unwanted items such as punctuation, numerals and very common words that are of little interest. We're ready to learn something from the data!
+
+### Key Points
+
+*   Text needs to be cleaned before analysis to remove uninteresting elements
+*   The tm package has convenient functions for cleaning the text
+*   Inspecting the output after each transformation helps to assess the effectiveness of the data cleaning, and some transformations need to be iterated over to suit the data
+
+---
+layout: lesson
+title: Analysing the document-term matrix
+---
+
+> ### Objectives
+> *   Analyse the document-term matrix to find most frequent words
+> *   Identify associations between words
+ 
+
+Now we are at the point where we can start to extract useful new information from our data. The first step is to find the words that appear most frequently in our data and the second step is to find associations between words to help us understand how the words are being used. Since this is an exploratory data analysis you will need to repeat the analysis over and over with slight variations in the parameters until we get output that is interesting. 
+
+To identify the most frequent words we can use the `findFreqTerms` function in `tm`. We could also convert the document-term matrix to a regular matrix and sort the matrix. However, this is problematic for larger document-term matrices, since the resulting matrix can be too big to store in memory (since the regular matrix has to allocate memory for each zero in the matrix, but the document-term matrix does not). Here we'll stick with using `findFreqTerms` since that's more versatile. The `lowfreq` argument specifies the minimum number of times the word should occur in the data:
+
+
+```{r}
+findFreqTerms(my_dtm_sparse, lowfreq=5)
+```
+
+We'll need to experiment with a bunch of different values for `lowfreq`, and even so, we might find that some of the words we're getting are uninteresting, such as 'able', 'also', 'use' and so on. One way to deal with those is to make a custom stopword list and run the remove stopwords function again. However, we can take a bit of a shortcut with stopwords. Instead of going back to the corpus, removing stopwords and numbers and so on, we can simply subset the columns of the document-term matrix using `[` to exclude the words we don't want any more. This `[` is a fundamental and widely used function in R that can be used to subset many kinds of data, not just text.
+
+
+```{r}
+remove <- c("able", "also", "use", "like", "id", "better", "basic", "will", "something") # words we probably don't want in our data
+my_dtm_sparse_stopwords <- my_dtm_sparse[ , !(Terms(my_dtm_sparse) %in% remove)  ] # subset to remove those words
+# when using [ to subset, the pattern is [ rows , columns ] so if we have a
+# function before the comma then we're operating on the rows, and after the 
+# comma is operating on the columns. In this case we are operating on the columns.
+# The exclamation mark at the start of our column operation signifies 
+# 'exclude', then we call the list of words in our data with 
+# Terms(my_term) then we use %in% to literally mean 'in' 
+# and then we provide our list of stopwords. So we're telling R to give us 
+# all of the words in our data except those in our custom stopwordlist. 
+```
+
+Let's have a look at our frequent terms now and see what's left, some experimentation might still be needed with the `lowfreq` value:
+
+
+```{r}
+findFreqTerms(my_dtm_sparse_stopwords, lowfreq = 5)
+```
+
+That gives us a nice manageable set of words that are highly relevant to our main question of what skills people want to learn. We can squeeze a bit more information out of these words by looking to see what other words they are often used with. The function `findAssocs` is ideal for this, and like the other functions in this lesson, requires an iterative approach to get the most informative output. So let's experiment with different values of `corlimit` (the lower limit of the correlation value between our word of interest and the rest of the words in our data): 
+
+
+```{r}
+findAssocs(my_dtm_sparse_stopwords, 'stata', corlimit = 0.25)
+```
+
+In this case we've learned that stata seems to be what some people are currently using, and is mentioned with SPSS, a sensible pairing as both are commercial software packages that are widely used in some research areas. But analysing these correlations one word at a time is tedious, so let's speed it up a bit by analysing a vector of words all at once. Let's do all of the high frequency words, first we'll store them in a vector object, then we'll pass that object to the `findAssocs` function (notice how we can drop the word `corlimit` in the `findAssocs`? Since it only takes one numeric argument it's unambiguous, so we can just pop the number in there without a label):
+
+
+```{r}
+# create a vector of the high-frequency words
+my_highfreqs <- findFreqTerms(my_dtm_sparse_stopwords, lowfreq = 5)
+# find words associated with each of the high frequency words
+my_highfreqs_assocs <- findAssocs(my_dtm_sparse_stopwords, my_highfreqs, 0.25)
+# have a look...
+my_highfreqs_assocs 
+my_highfreqs_assocs$python
+```
+
+This is where we can learn a lot about our respondents. For example 'learn' is associated with 'basics', 'linear' and 'modelling', indicating that our respondents are keen to learn more about linear modelling. 'Modelling' seems particularly frequent across many of the high frequency terms. We see 'visualization' associated with 'spatial' and 'modelling', and we see 'tools' associated with 'plot' suggesting a strong interest in learning about tools for data visualisation. 'R' is correlated with 'statistical', indicated that our respondents are aware of the unique strength of that programming language. And so on, now we have some quite specific insights into our respondents. 
+
+So we've improved our understanding our our respondents nicely and we have a good sense of what's on their minds. The next step is to put these words in order of frequency so we know which are the most important in our survey, and visualise the data so we can easily see what's going on. 
+
+### Key Points
+
+*   We can subset the document-term matrix using the `[` function to remove additional stopwords
+*   Once stopwords are removed, the high-frequency words offer insights into the data
+*   Analysing the words associated with the high-frequency words gives further insights into the context, meaning and use of the high-frequency words
+*   We can automate the correlation analysis by passing a vector of words to the function, rather than just analysing one word at a time
+
+---
+layout: lesson
+title: Visualising the document-term matrix
+---
+
+> ### Objectives
+> *   Analyse the rank of frequencies
+> *   Visualise the results with ggplot2
+> *   Visualise correlations of words with Rgraphviz
+ 
+
+We have some useful and new insights into our data, but we don't yet know which words are more frequent that others. Which are our respondents more interested in, R or Python? We also want to visualise our results so we can effectively communicate them to others.  Let's make a table that includes the exact frequencies of our high-frequency words. This is a three step operation: starting first in the middle of the function, we use `[` again to subset the document-term matrix to get only the columns for our high-frequency words, second we use `as.matrix` convert the document-term matrix to a regular matrix, third, use `colSums` to compute the column sums to get the total count for each word across all the documents (survey respondents):
+
+
+```{r}
+my_highfreqs_values <- colSums(as.matrix(my_dtm_sparse_stopwords[, my_highfreqs]))
+```
+
+The output of this line is an object called a 'named number' which is not an ideal format for making a table or plotting, so we'll need to get it into a data frame, which is much more useful. We'll use the function `data.frame` and then separately extract the words and their frequencies into columns of the data frame, assigning column names at the same time (here they are 'word' and 'freq'):
+
+
+```{r}
+my_highfreqs_values_df <- data.frame(word = names(my_highfreqs_values),
+                                     freq = my_highfreqs_values)
+my_highfreqs_values_df # have a look
+```
+
+Now we have a table, which is progress. If we have a glance up and down we can see what word occur most frequently. We can go a step further and sort the table to make it quicker to see the rank order of words in our data, once again using `[` with the addition of `order` to organise our data frame: 
+
+
+```{r}
+my_highfreqs_values_df <- my_highfreqs_values_df[with(my_highfreqs_values_df, order(freq)), ]
+#  this may seem like a lot of typing for such a simple operation. If you're feeling brave
+#  and want to type less, check out the 'arrange' function in the 'dplyr' package, it's 
+#  a lot less typing and quicker for large datasets.
+my_highfreqs_values_df # have a look 
+```
+
+That's much better, now we've got a something that we can easily adapt to include in a report, for example by using the `write.csv` function to put the table into a spreadsheet file. We can see that 'data', 'analysis' and 'r' are the three most frequent words, indicating that these are the skills and tools our respondents are most interested in. Let's plot this so we can summarise our results in a high-impact visualisation. R comes with versatile built-in plotting functions, but we'll use a contributed package called `ggplot2` which produces publication-quality plots with minimum effort. We'll install the package first, assuming this is first time you've used `ggplot`. If you've already used it on your computer you can skip `install.packages`, but don't skip `library(ggplot2)`!
+
+
+```{r}
+# get the package
+install.packages("ggplot2")
+# make code available to our session
+library(ggplot2)
+# draw the plot
+ggplot(my_highfreqs_values_df, aes(reorder(word, -freq), freq)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  xlab("high frequency words") +
+  ylab("freqeuncy") + 
+  theme(axis.text.x = element_text(angle = -90, hjust = 0, vjust = 0.2)) 
+```
+
+There's quite a bit going on in that `ggplot` function, briefly, we specify the dataset and the columns to plot, then in the same line we reorder the data from the highest frequency word to the lowest (`ggplot` doesn't care about our previous ordering), then specify a bar plot with `geom_bar`, then adjust the background colour with `theme_minimal`, then customize the axis labels, and finally rotate and center the horizontal axis labels. The result is a clear picture of the data, and we see a strong interest in data analysis using R. Python is one of the lowest frequency words in this set, so if were planning lessons for our respondents we now know that R is the language they're most familiar with and most interested to learn. 
+
+Our second plot will visualise some of the correlations between the high-frequency words. We're using a package called `Rgraphviz` that is available in an online repository called [Bioconductor](http://www.bioconductor.org/). One of the great things about R is the huge number of user-contributed packages, but one of the downsides is they're scattered across a few different repositories. Most are on CRAN, followed by Bioconductor, and a small number on GitHub. Each repository requires a slightly different method for obtaining the package, as you can see in the code chunk below. Once we've got the Rgraphviz package ready, we can draw a cluster graph of our high frequency words and link them when they have at least a correlation of at least 0.15 (in this case). You'll need to experiment with different values of `corThreshold` to get a plot that gives meaningful information, too low and you'll get a mess of spaghetti lines, and too high and you'll get nothing. The vignette for Rgraphviz explains how to add colour to the plot and many other customisations, we'll stick with the basic plot here: 
+
+
+```{r}
+source("http://bioconductor.org/biocLite.R")
+biocLite("Rgraphviz")
+library(Rgraphviz)
+
+plot(my_dtm_sparse_stopwords, 
+     terms = findFreqTerms(my_dtm_sparse_stopwords, 
+                           lowfreq = 5), 
+     corThreshold = 0.15)
+```
+
+We can quickly see the centrality of 'learn', and how words like 'stata' and 'using' are correlated with many other words. 'Databases' is left unconnected, indicating that there's isn't much of a pattern in its appearance in the survey responses - perhaps our respondents were not sure what exactly a database is and what it's used for, or they had such different ideas about databases there is no strong correlation with other words.
+
+That wraps up this introductory lesson to text mining survey responses with R. We've gone through some of the key tasks of getting data into R, cleaning and transforming it using specialised packages, doing quantitative analyses and finally creating visualisations. We've also learned a lot about common functions and quirks when using R. The value of this exercise comes from the new insights we've gathered from our data that were not obvious from a casual inspection of the raw data file. From here you have a solid foundation for text mining with R, ready to apply to all kinds of other data and research questions. You shouldn't hesitate to augment what you've learnt here with the help built-in to R and the packages, online tutorials, and your imaginative experiments at the command line.  
+
+
+### Key Points
+
+*   Data can to be rearranged and reordered to make it more readable and easier to extract insights
+*   Visualising the word frequencies with a simple bar plot gives a clear picture of the most frequent words
+*   A cluster plot helps us see correlations between words and better understand patterns in word use in our data
