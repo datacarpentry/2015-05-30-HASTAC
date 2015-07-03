@@ -109,11 +109,11 @@ We're going to create a directory that we're going to do this work in
 and then download the data.
 
 To create the directory type:
-    mkdir edamame
+    mkdir datacarpentry
 This means, make directory 'edamame'
 
 Now we're going to go in to that directory
-    cd edamame
+    cd datacarpentry
 This stands for 'change directory'
 
 Now let's look at see what's in here. There should be nothing
